@@ -32,16 +32,21 @@ template <class... Types>
 class Tuple {
   static constexpr size_t size_ = sizeof...(Types);
 
+  // 计算Tuple中每个元素在内存中的位置
   static constexpr auto positions_ =
       internal::tuple::calculate_positions<Types...>();
 
+  // 创建一个整数序列，用于遍历Tuple中的每个元素
   static constexpr auto seq_ = std::make_integer_sequence<int, size_>{};
 
+  // 计算Tuple中所有元素占用的内存大小
   static constexpr unsigned int num_bytes_ = std::get<size_>(positions_);
 
+  // 定义一个用于存储Tuple中所有元素的内存块
   using DataType = std::array<unsigned char, num_bytes_>;
 
  public:
+  // 构造函数，接受任意数量的参数，并将其存储在Tuple中
   Tuple(const Types&... _t) { copy_from_types(_t..., seq_); }
 
   Tuple(Types&&... _t) noexcept { move_from_types(std::move(_t)..., seq_); }
@@ -144,6 +149,7 @@ class Tuple {
     const auto copy_one = [this]<int _i>(const auto& _t,
                                          std::integral_constant<int, _i>) {
       using Type = internal::nth_element_t<_i, Types...>;
+      // 使用 placement new 在预定位置构造对象
       ::new (static_cast<void*>(data_.data() + pos<_i>())) Type(_t);
     };
     (copy_one(_types, std::integral_constant<int, _is>{}), ...);
@@ -189,6 +195,7 @@ class Tuple {
 
  private:
   /// The underlying data, can be any of the underlying types.
+  // 当有多个 alignas 说明符时，实际的对齐要求是所有指定对齐值的最大值
   alignas(Types...) DataType data_;
 };
 
@@ -218,6 +225,10 @@ constexpr const auto& get(const std::tuple<Types...>& _tup) {
 
 template <class... Types>
 auto make_tuple(Types&&... _args) {
+  // std::decay_t 模拟了函数调用时的类型转换规则，主要处理三种类型转换：
+  // 1. 移除类型中的顶层 const 和 volatile 限定符
+  // 2. 移除类型中的顶层引用
+  // 3. 将数组类型转换为指针类型，将函数类型转换为函数指针类型
   return rfl::Tuple<std::decay_t<Types>...>(std::forward<Types>(_args)...);
 }
 
