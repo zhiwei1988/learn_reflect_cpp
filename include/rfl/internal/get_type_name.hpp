@@ -22,6 +22,8 @@ consteval auto get_type_name_str_view() {
   // <source_location>, but inofficially, this might work.
   const auto func_name = std::string_view{__FUNCSIG__};
 #else
+  // 获取当前函数的完整签名：
+  // 输出格式："auto get_type_name_str_view() [T = int]"
   const auto func_name = std::string_view{__PRETTY_FUNCTION__};
 #endif
 #if defined(__clang__)
