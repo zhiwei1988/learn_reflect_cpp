@@ -4,6 +4,7 @@
 #include <array>
 #include <tuple>
 #include <utility>
+#include <cstddef>
 
 namespace issl::internal {
 template <class T, int N, int _i>

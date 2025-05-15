@@ -31,6 +31,14 @@ constexpr auto wrap_elements(Ts... _ts, std::integer_sequence<int, _is...>) {
   return find_matching_element(ElementWrapper<Ts, N, _is>{_ts}...).t_;
 }
 
+// 如果 Ts... Ts 是 TypeWrapper<int>, TypeWrapper<double>, TypeWrapper<char>
+// N = 1
+// 那么会生成以下
+// ElementWrapper<TypeWrapper<int>, 1, 0>{}
+// ElementWrapper<TypeWrapper<double>, 1, 1>{}
+// ElementWrapper<TypeWrapper<char>, 1, 2>{}
+// 然后会调用 find_matching_element
+// 返回类型是 TypeWrapper<double>
 template <int N, class... Ts>
 constexpr auto nth_element(Ts... _ts) {
   static_assert(N >= 0, "N out of bounds.");

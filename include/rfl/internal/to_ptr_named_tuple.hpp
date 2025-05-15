@@ -56,6 +56,8 @@ auto field_tuple_to_named_tuple(PtrFieldTuple& _ptr_field_tuple) {
 
 /// Generates a named tuple that contains pointers to the original values in
 /// the struct.
+// 这段代码的核心功能是为一个给定的类型 T（通常是一个结构体或类）创建一个 rfl::NamedTuple，
+// 这个 NamedTuple 包含指向原始对象 _t 成员变量的指针。
 template <class T>
 auto to_ptr_named_tuple(T&& _t) {
   if constexpr (has_fields<std::remove_cvref_t<T>>()) {

@@ -14,6 +14,8 @@
 
 namespace rfl::internal {
 
+// 这是一个备用模板，如果字段数 n 没有对应的特化（比如大于 256），它会通过 static_assert 触发一个编译时错误，
+// 提示用户结构体字段过多或包含自定义构造函数（这会干扰结构化绑定）。
 template <std::size_t n>
 struct tuple_view_helper {
   template <class T>
@@ -33,11 +35,16 @@ struct tuple_view_helper {
   }
 };
 
+// 处理没有字段的空结构体，直接返回一个空的 rfl::Tuple
 template <>
 struct tuple_view_helper<0> {
   static auto tuple_view(auto&) { return rfl::make_tuple(); }
 };
 
+// 这是代码的主体部分。通过一个宏，为字段数量 n 从 1 到 256 生成了大量的 tuple_view_helper<n> 特化版本。
+// 结构化绑定 (auto& [__VA_ARGS__] = _t;): 这是关键步骤。
+// 它使用结构化绑定将传入的结构体对象 _t 的所有成员（按声明顺序）解包到宏参数 __VA_ARGS__ 指定的局部引用变量中（例如，对于 n=3，就是 auto& [f0, f1, f2] = _t;）。
+// 现在，f0, f1, f2 分别引用了 _t 的第一个、第二个和第三个成员。
 #define RFL_INTERNAL_TUPLE_VIEW_IF_YOU_SEE_AN_ERROR_REFER_TO_DOCUMENTATION_ON_C_ARRAYS( \
     n, ...)                                                                             \
   template <>                                                                           \

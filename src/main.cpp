@@ -4,37 +4,29 @@
 #include "issl/issl_tuple.hpp"
 #include <iostream>
 #include <string>
+#include <vector>
+#include "rfl.hpp"
+
+// 定义一个普通的 C++ 结构体，没有使用 rfl::Field 包装
+struct Person {
+    std::string name;          // 普通 std::string 类型
+    int age;                   // 内置 int 类型
+    double salary;             // 内置 double 类型
+    std::vector<std::string> hobbies;  // 标准库容器类型
+};
 
 int main() {
-    // 创建一个包含不同类型的 Tuple
-    issl::Tuple<int, std::string, double> tuple(42, "Hello", 3.14);
-
-    // 使用 get<N>() 访问元素
-    std::cout << "第一个元素 (int): " << tuple.get<0>() << std::endl;
-    std::cout << "第二个元素 (string): " << tuple.get<1>() << std::endl;
-    std::cout << "第三个元素 (double): " << tuple.get<2>() << std::endl;
-
-    // 使用移动构造创建新的 Tuple
-    auto tuple2 = issl::Tuple<int, std::string, double>(123, "World", 2.718);
-
-#ifdef NEED_USE
-    // 比较两个 Tuple
-    if (tuple < tuple2) {
-        std::cout << "tuple1 小于 tuple2" << std::endl;
+   // 创建结构体实例
+    Person person{"张三", 30, 8000.0, {"读书", "旅游"}};
+    
+    // 使用 fields() 获取结构体字段元信息
+    auto meta_fields = rfl::fields<Person>();
+    
+    // 输出元信息
+    std::cout << "Person 结构体有 " << meta_fields.size() << " 个字段:" << std::endl;
+    for (const auto& field : meta_fields) {
+        std::cout << "字段名: " << field.name() << ", 类型: " << field.type() << std::endl;
     }
-
-    // 赋值操作
-    tuple = tuple2;
-    std::cout << "赋值后的第一个元素: " << tuple.get<0>() << std::endl;
-    std::cout << "赋值后的第二个元素: " << tuple.get<1>() << std::endl;
-#endif
-
-    // 创建一个空的 Tuple
-    issl::Tuple<> empty_tuple;
-
-    // 创建一个只包含一个元素的 Tuple
-    issl::Tuple<int> single_element(10);
-    std::cout << "单元素 Tuple: " << single_element.get<0>() << std::endl;
 
     return 0;
 }
